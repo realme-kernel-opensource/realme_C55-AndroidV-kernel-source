@@ -299,6 +299,9 @@ void mtk_idle_post_process_by_chip(
 	/* unmask irq and restore cirq */
 	mtk_spm_irq_restore();
 
+	/* clear wakeup source after idle */
+	spm_write(SPM_SW_RSV_0, 0);
+
 	/* unlock spm spin_lock */
 	spin_unlock_irqrestore(&__spm_lock, flags);
 

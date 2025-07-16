@@ -6,6 +6,9 @@
 #include "imgsensor_common.h"
 #include "imgsensor_i2c.h"
 #include <linux/ratelimit.h>
+#ifdef OPLUS_FEATURE_CAMERA_COMMON
+#include "dynamic_i2c.h"
+#endif
 
 struct IMGSENSOR_I2C gi2c;
 
@@ -181,6 +184,12 @@ enum IMGSENSOR_RETURN imgsensor_i2c_read(
 	pinst->msg[1].len   = read_length;
 	pinst->msg[1].buf   = pread_data;
 
+#ifdef OPLUS_FEATURE_CAMERA_COMMON
+	dynamic_adjust_i2c_speed(
+			pinst->msg,
+			((speed > 0) && (speed <= 1000))
+				? speed * 1000 : IMGSENSOR_I2C_SPEED * 1000);
+#endif
 	if (mtk_i2c_transfer(
 	    pinst->pi2c_client->adapter,
 	    pinst->msg,
@@ -236,6 +245,12 @@ enum IMGSENSOR_RETURN imgsensor_i2c_write(
 		pdata += write_per_cycle;
 	}
 
+#ifdef OPLUS_FEATURE_CAMERA_COMMON
+	dynamic_adjust_i2c_speed(
+			pinst->msg,
+			((speed > 0) && (speed <= 1000))
+				? speed * 1000 : IMGSENSOR_I2C_SPEED * 1000);
+#endif
 	if (mtk_i2c_transfer(
 	    pinst->pi2c_client->adapter,
 	    pinst->msg,
